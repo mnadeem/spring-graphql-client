@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpEntity;
@@ -27,9 +26,16 @@ public class GraphQLTemplate {
     private RestTemplate restTemplate;
     @Autowired
     private ObjectMapper objectMapper;
-    
-    @Value("${app.graphql.api.url:/graphql}")
-    private String graphqlMapping;
+
+    private String graphqlUrl;
+    private String apiKeyName;
+    private String apiKeyValue;
+
+	public GraphQLTemplate(String graphqlUrl, String apiKeyName, String apiKeyValue) {
+		this.graphqlUrl = graphqlUrl;
+		this.apiKeyName = apiKeyName;
+		this.apiKeyValue = apiKeyValue;
+	}
 
     private String loadQuery(String location) throws IOException {
         Resource resource = resourceLoader.getResource("classpath:" + location);
@@ -66,11 +72,17 @@ public class GraphQLTemplate {
     }
 
     private <T> ResponseEntity<T> post(String payload, Class<T> responseType) {
-        return post(payload, new HttpHeaders(), responseType);
+        return post(payload, newHeaders(), responseType);
     }
 
+	private HttpHeaders newHeaders() {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add(apiKeyName, apiKeyValue);
+		return httpHeaders;
+	}
+
     private <T> ResponseEntity<T> postForEntity(HttpEntity<Object> request, Class<T> responseType) {
-    	return restTemplate.postForEntity(graphqlMapping, request, responseType);
+    	return restTemplate.postForEntity(graphqlUrl, request, responseType);
     }
 
     private static HttpEntity<Object> forJson(String json, HttpHeaders headers) {
