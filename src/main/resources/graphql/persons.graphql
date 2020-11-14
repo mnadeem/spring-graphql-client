@@ -2,6 +2,7 @@ query Persons {
   person {
     id
     name
-    age
+    dob
+    gender
   }
 }

@@ -1,15 +1,23 @@
 package com.mnadeem.graphql;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 
+import com.mnadeem.graphql.model.Person;
+
 @SpringBootApplication
 public class SpringGraphqlClientApplication implements CommandLineRunner {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpringGraphqlClientApplication.class);
 
 	@Autowired
 	private GraphQLTemplate template;
@@ -20,7 +28,28 @@ public class SpringGraphqlClientApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+		mutation();
+		queryPersons();
+		mutationVariable();
+	}
+
+	private void mutationVariable() throws IOException {
+		Person person = new Person();
+		person.setName("Test Name");
+		person.setDob(new Date());
+		person.setGender("M");
+		
+		ResponseEntity<Map> res = template.postForResource("graphql/insert_person_mutation_variables.graphql", person,  Map.class);
+		LOGGER.info("Query : {} ", res);
+	}
+
+	private void queryPersons() throws IOException {
 		ResponseEntity<Map> res = template.postForResource("graphql/persons.graphql", Map.class);
-		System.out.println(res);		
+		LOGGER.info("Query : {} ", res);
+	}
+
+	private void mutation() throws IOException {
+		ResponseEntity<Map> res = template.postForResource("graphql/insert_person_mutation.graphql", Map.class);
+		LOGGER.info("Mutation : {} ", res);
 	}
 }

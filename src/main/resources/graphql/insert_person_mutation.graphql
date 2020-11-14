@@ -1,0 +1,7 @@
+mutation InsertPerson {
+  insert_person(objects: {dob: "1/1/2020", gender: "M", name: "John Doe"}) {
+    returning {
+      id
+    }
+  }
+}

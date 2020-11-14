@@ -41,7 +41,7 @@ public class GraphQLTemplate {
         return postForResource(graphqlResource, null, responseType);
     }
 
-    public <T> ResponseEntity<T> postForResource(String graphqlResource, ObjectNode variables, Class<T> responseType) throws IOException {
+    public <T> ResponseEntity<T> postForResource(String graphqlResource, Object variables, Class<T> responseType) throws IOException {
         String graphql = loadQuery(graphqlResource);
         String payload = createJsonQuery(graphql, variables);
         return post(payload, responseType);
@@ -58,12 +58,12 @@ public class GraphQLTemplate {
         }
     }
 
-    private String createJsonQuery(String graphql, ObjectNode variables)
+    private String createJsonQuery(String graphql, Object variables)
             throws JsonProcessingException {
 
         ObjectNode wrapper = objectMapper.createObjectNode();
         wrapper.put("query", graphql);
-        wrapper.set("variables", variables);
+        wrapper.set("variables", objectMapper.valueToTree(variables));
         return objectMapper.writeValueAsString(wrapper);
     }
 

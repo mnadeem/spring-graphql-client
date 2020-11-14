@@ -1,0 +1,7 @@
+mutation InsertPerson($name: String, $dob: date, $gender: String) {
+  insert_person(objects: {dob: $dob, gender:  $gender, name: $name}) {
+    returning {
+      id
+    }
+  }
+}
