@@ -37,6 +37,16 @@ public class GraphQLTemplate {
 		this.apiKeyValue = apiKeyValue;
 	}
 
+    public <T> ResponseEntity<T> postForResource(String graphqlResource, Class<T> responseType) throws IOException {
+        return postForResource(graphqlResource, null, responseType);
+    }
+
+    public <T> ResponseEntity<T> postForResource(String graphqlResource, ObjectNode variables, Class<T> responseType) throws IOException {
+        String graphql = loadQuery(graphqlResource);
+        String payload = createJsonQuery(graphql, variables);
+        return post(payload, responseType);
+    }
+
     private String loadQuery(String location) throws IOException {
         Resource resource = resourceLoader.getResource("classpath:" + location);
         return loadResource(resource);
@@ -57,20 +67,6 @@ public class GraphQLTemplate {
         return objectMapper.writeValueAsString(wrapper);
     }
 
-    public <T> ResponseEntity<T> postForResource(String graphqlResource, ObjectNode variables, Class<T> responseType) throws IOException {
-        String graphql = loadQuery(graphqlResource);
-        String payload = createJsonQuery(graphql, variables);
-        return post(payload, responseType);
-    }
-
-    public <T> ResponseEntity<T> postForResource(String graphqlResource, Class<T> responseType) throws IOException {
-        return postForResource(graphqlResource, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> post(String payload, HttpHeaders headers, Class<T> responseType) {
-        return postForEntity(forJson(payload, headers), responseType);
-    }
-
     private <T> ResponseEntity<T> post(String payload, Class<T> responseType) {
         return post(payload, newHeaders(), responseType);
     }
@@ -81,12 +77,16 @@ public class GraphQLTemplate {
 		return httpHeaders;
 	}
 
-    private <T> ResponseEntity<T> postForEntity(HttpEntity<Object> request, Class<T> responseType) {
-    	return restTemplate.postForEntity(graphqlUrl, request, responseType);
+    private <T> ResponseEntity<T> post(String payload, HttpHeaders headers, Class<T> responseType) {
+        return postForEntity(forJson(payload, headers), responseType);
     }
 
     private static HttpEntity<Object> forJson(String json, HttpHeaders headers) {
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(json, headers);
+    }
+
+    private <T> ResponseEntity<T> postForEntity(HttpEntity<Object> request, Class<T> responseType) {
+    	return restTemplate.postForEntity(graphqlUrl, request, responseType);
     }
 }
