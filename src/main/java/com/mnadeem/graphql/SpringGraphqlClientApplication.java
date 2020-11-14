@@ -2,6 +2,7 @@ package com.mnadeem.graphql;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -31,6 +32,17 @@ public class SpringGraphqlClientApplication implements CommandLineRunner {
 		mutation();
 		queryPersons();
 		mutationVariable();
+		
+		renamingFields();
+	}
+
+	private void renamingFields() throws IOException {
+		Map<String, String> vars = new HashMap<String, String>();
+		vars.put("male", "M");
+		vars.put("female", "F");
+
+		ResponseEntity<Map> res = template.postForResource("graphql/renaming_results.graphql", vars,  Map.class);
+		LOGGER.info("Renaming fields : {} ", res);
 	}
 
 	private void mutationVariable() throws IOException {
@@ -40,12 +52,12 @@ public class SpringGraphqlClientApplication implements CommandLineRunner {
 		person.setGender("M");
 		
 		ResponseEntity<Map> res = template.postForResource("graphql/insert_person_mutation_variables.graphql", person,  Map.class);
-		LOGGER.info("Query : {} ", res);
+		LOGGER.info("MutationVariable : {} ", res);
 	}
 
 	private void queryPersons() throws IOException {
 		ResponseEntity<Map> res = template.postForResource("graphql/persons.graphql", Map.class);
-		LOGGER.info("Query : {} ", res);
+		LOGGER.info("queryPersons : {} ", res);
 	}
 
 	private void mutation() throws IOException {

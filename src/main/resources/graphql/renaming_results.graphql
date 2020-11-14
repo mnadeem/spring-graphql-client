@@ -1,0 +1,10 @@
+query getPersons ($male: String, $female: String) {
+  male: person(order_by: {dob: desc}, where: {gender: {_eq: $male}}) {
+    id
+    name
+  }
+  female: person(order_by: {dob: desc}, where: {gender: {_eq: $female}}) {
+    id
+    name
+  }
+}
